@@ -1,4 +1,4 @@
-from ParamStruct import ParamDDLWork
+from ParamStruct import ParamDDLWork, ParamDDLContent,BaseStruct
 
 from hashlib import md5
 from log import logger
@@ -35,36 +35,43 @@ class BaseModule:
         返回：
         requests.Response: 返回请求的响应对象
         """
-        if self.request_type == "POST":
-            if "json_p" not in kwargs:
-                raise ValueError("Missing 'json_p' for POST request")
-            try:
+        try:
+            if self.request_type == "POST":
+                if "json_p" not in kwargs:
+                    raise ValueError("Missing 'json_p' for POST request")
                 result = requests.post(
-                    url=self.url, data=json.dumps(kwargs["json_p"]), headers=headers
+                    url=self.url,
+                    data=json.dumps(kwargs["json_p"]),
+                    headers=headers,
+                    verify=False,
                 )
-            except Exception as e:
-                logger.error(f"发送请求失败,错误信息:{e}")
-                return None
-            return result
-        elif self.request_type == "GET":
-            if "json_p" in kwargs:
-                try:
+                return result
+            elif self.request_type == "GET":
+                if "json_p" in kwargs:
                     result = requests.get(
-                        url=self.url, params=kwargs["json_p"], headers=headers
+                        url=self.url,
+                        params=kwargs["json_p"],
+                        headers=headers,
+                        verify=False,
                     )
-                except Exception as e:
-                    logger.error(f"发送请求失败,错误信息:{e}")
-                    return None
+                    return result
+                else:
+                    try:
+                        result = requests.get(url=self.url, headers=headers)
+                    except Exception as e:
+                        logger.error(f"发送请求失败,错误信息:{e}")
+                        return None
+                    return result
+            elif self.request_type == "DELETE":
+                result = requests.delete(
+                    url=self.url, data=json.dumps(kwargs["json_p"]), headers=headers, verify=False
+                )
                 return result
             else:
-                try:
-                    result = requests.get(url=self.url, headers=headers)
-                except Exception as e:
-                    logger.error(f"发送请求失败,错误信息:{e}")
-                    return None
-                return result
-        else:
-            raise ValueError(f"Unsupported request type: {self.request_type}")
+                raise ValueError(f"Unsupported request type: {self.request_type}")
+        except Exception as e:
+            logger.error(f"发送请求失败,错误信息:{e}")
+            return None
 
 
 class LoginModule(BaseModule):
@@ -228,6 +235,10 @@ class PublicConfig(BaseModule):
             logger.error(f"查询工作空间失败,错误信息:{e}")
             return None
 
+SAVE_SUCCESS = "保存成功"
+DELETE_SUCCESS = "删除成功"
+OPERATION_SUCCESS = "操作成功"
+EXCUTE_SUCCESS = "执行成功"
 
 class DataDevelopment(BaseModule):
     """数据开发类\n
@@ -242,7 +253,7 @@ class DataDevelopment(BaseModule):
 
     def QueryOutLineWork(
         self, token: str, tenantid: str, projectid: str, envid: str
-    ) -> tuple[dict,dict]:
+    ) -> tuple[dict, dict]:
         """查询数据开发作业\n
         参数：
         token(str):     登入后获取的token
@@ -312,7 +323,7 @@ class DataDevelopment(BaseModule):
 
                     dict_works[work["id"]] = work["name"]
                     dict_parent[work["id"]] = work["id"]
-                    FindChildV2(work["child"], work["id"],work["id"])
+                    FindChildV2(work["child"], work["id"], work["id"])
             logger.debug(f"作业信息：{dict_works}")
 
             return dict_works, dict_parent
@@ -337,6 +348,7 @@ class DataDevelopment(BaseModule):
         url = f"{self.base_url}/dehoop-admin/job/outlinework/work?timestamp={timestamp}"
         self.url = url
         self.request_type = "POST"
+        logger.debug(self.url)
 
         headers = {
             "dehooptoken": token,
@@ -353,37 +365,162 @@ class DataDevelopment(BaseModule):
 
         result = self.send(headers, json_p=json_p)
         if result is None:
+            logger.warning(f"返回结果为空！！！")
             return None
         try:
-            id = json.loads(result.text)['data']['id']
+            id = json.loads(result.text)["data"]["id"]
             logger.info(f"返回状态码:  {result.status_code}")
+            logger.info(f"返回该作业id: {id}")
             logger.debug(f"返回结果: \n {result.text}")
             return id
         except Exception as e:
             logger.error(f"创建DDL作业失败,错误信息:{e}")
             return None
 
-    def SaveOrUpdateDDLWork():
-        pass
+    def SaveOrUpdateDDLWork(
+        self, token: str, projectid: str, tenantid: str, params: ParamDDLContent
+    )->bool:
+        """保存DDL作业"""
+        timestamp = int(time.time())
+        url = f"{self.base_url}/dehoop-admin/job/outlinework/workScript?timestamp={timestamp}"
+        self.url = url
+        self.request_type = "POST"
+        logger.debug(self.url)
 
-    def DeleteDDLWork():
-        pass
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
 
+        json_p = params.to_dict()
+        logger.info("保存更新DDL作业请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
 
-def FindChild(child_work: list, parent: str):
-    """递归查找子节点\n
-    参数：
-    child_work(list): 子节点列表
-    parent(str):      父节点ID
-    """
+        result = self.send(headers, json_p=json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            if (SAVE_SUCCESS == str(json.loads(result.text)["message"])):
+                return True
+            return None
+        except Exception as e:
+            logger.error(f"保存DDL作业失败,错误信息:{e}")
+            return None
 
-    for work in child_work:
-        if work["type"] == "DIR":
+    def DeleteDDLWork(
+        self,token:str,projectid:str,tenantid:str,id
+    )->bool:
+        """删除DDL作业"""
 
-            dict_child[work["id"]] = []
-            dict_works[work["id"]] = work["name"]
-
-            dict_child[parent].append(work["id"])
-
-        if work["child"]:
-            FindChild(work["child"], work["id"])
+        timestamp = int(time.time())
+        url = (
+            f"{self.base_url}//dehoop-admin/job/outlinework/work?timestamp={timestamp}"
+        )
+        self.url = url
+        self.request_type = "DELETE"
+        logger.debug(self.url)
+        
+        
+        param = ParamDDLContent(workId = id)
+        json_p = param.to_dict()
+        
+       
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
+        logger.info("删除DDL作业请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
+        result = self.send(headers,json_p = json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            if (DELETE_SUCCESS == str(json.loads(result.text)["message"])):
+                return True
+            return None
+        except Exception as e:
+            logger.error(f"删除DDL作业失败,错误信息:{e}")
+            return None   
+        
+    def ExcuteTestParams(self,token:str,projectid:str,tenantid:str,param):
+        """执行参数测试作业"""
+        timestamp = int(time.time())
+        url = f"{self.base_url}/dehoop-admin/job/outlinework/get/executionTestParams?timestamp={timestamp}"
+        self.url = url
+        self.request_type = "POST"
+        logger.debug(self.url)
+        
+        json_p = param.to_dict()
+        
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
+        
+        
+        logger.info("运行测试参数作业请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
+        result = self.send(headers,json_p = json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            if (OPERATION_SUCCESS == str(json.loads(result.text)["message"])):
+                return True
+            return None
+        except Exception as e:
+            logger.error(f"运行测试参数作业失败,错误信息:{e}")
+            return None   
+    
+    def ExcuteWork(self,token:str,projectid:str,tenantid:str,param)->str:
+        """执行DDL作业"""
+        timestamp = int(time.time())
+        url = f"{self.base_url}/dehoop-admin/job/outlinework/execute?timestamp={timestamp}"
+        self.url = url
+        self.request_type = "POST"
+        logger.debug(self.url)
+        
+        json_p = param.to_dict()
+        
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
+        
+        
+        logger.info("执行作业请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
+        result = self.send(headers,json_p = json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            if (EXCUTE_SUCCESS == str(json.loads(result.text)["message"])):
+                excuteId = str(json.loads(result.text)["data"]["queryExecuteId"])
+                return excuteId
+            return None
+        except Exception as e:
+            logger.error(f"执行作业失败,错误信息:{e}")
+            return None   

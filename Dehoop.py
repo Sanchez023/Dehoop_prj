@@ -2,7 +2,8 @@
 from log import logger
 import socket
 from Module import LoginModule,PublicConfig,DataDevelopment
-from ParamStruct import ParamDDLWork
+from ParamStruct import ParamDDLWork,ParamDDLContent
+from time import sleep
 class Root:
     '''网络根信息类\n
     用于维护对应的网络地址信息和端口信息，提供了一个端口测试的方法
@@ -48,6 +49,7 @@ class Dehoop(Root):
         self.c_prjdir =  None
         self.c_nodeMatch = None
         
+        self.running_excuteId = {}
         
     def Login(self,username:str,passwd:str):
         '''执行登入'''
@@ -64,6 +66,7 @@ class Dehoop(Root):
     
     def QueryProject(self):
         '''查询项目'''
+       
         if self.token is not None:
             self.projects =  PublicConfig(self.request_url).QueryProject(self.token,self.tenantid)
             if self.projects is not None:
@@ -75,6 +78,7 @@ class Dehoop(Root):
 
     def QueryWorkSpace(self,projectName:str):
         '''查询工作空间'''
+       
         if self.projects is None:
             logger.warning("未获取到项目信息，正在获取项目")
             self.QueryProject()
@@ -95,6 +99,7 @@ class Dehoop(Root):
         参数:
             projectName: 项目名称
         '''
+       
         if self.projects is None:
             logger.warning("未获取到项目信息，正在获取项目")
             self.QueryProject()
@@ -115,17 +120,60 @@ class Dehoop(Root):
         projectName: 项目名称
         param:       DDL作业参数
         '''
-        
+       
         if self.c_prjdir is None:
             logger.warning("未获取到项目目录信息，正在获取项目目录")
             self.QueryOutLineWorks(projectName)
-            projectid:str = self.projects[projectName][0]
-            param.director = self.tenantid
-            param.flowId = self.c_nodeMatch[param.parentId]
-            id = DataDevelopment(self.request_url).CreateDDLWork(self.token,projectid,self.tenantid,param)
-            if id is not None:
-                logger.info("创建DDL作业成功")
-                logger.info(f"DDL作业ID:{id}")
+        projectid:str = self.projects[projectName][0]
+        param.director = self.tenantid
+        param.flowId = self.c_nodeMatch[param.parentId]
+        id = DataDevelopment(self.request_url).CreateDDLWork(self.token,projectid,self.tenantid,param)
+        if id is not None:
+            logger.info("创建DDL作业成功")
+            logger.info(f"DDL作业ID:{id}")
+            return id
         else:
-            logger.error("创建DDL作业失败")
+            logger.error(f"请检查当前作业名称是否重复'{param.name}'")
             return None
+        
+    def UpdateDDLWork(self,projectName:str,param:ParamDDLContent):
+        '''保存更新DDL作业
+        
+        参数：
+        projectName: 项目名称
+        param:       DDL内容参数
+        '''
+       
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        result = DataDevelopment(self.request_url).SaveOrUpdateDDLWork(self.token,projectid,self.tenantid,param)
+        if result == None:
+            raise Exception("创建失败")
+    
+    def DeleteWorkById(self,projectName,id):
+       
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        res = DataDevelopment(self.request_url).DeleteDDLWork(self.token,projectid,self.tenantid,id)
+        if res:   
+            logger.info(f"删除'{id}'作业成功！")
+        else:
+            logger.warning(f"删除'{id}'作业失败！")
+            
+    
+    def ExuteDDLWork(self,projectName,param:ParamDDLWork):
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        if DataDevelopment(self.request_url).ExcuteTestParams(self.token,projectid,self.tenantid,param):
+            excuteid = DataDevelopment(self.request_url).ExcuteWork(self.token,projectid,self.tenantid,param)
+            if excuteid:
+                self.running_excuteId[excuteid] = ""
+                logger.info(f"作业:{param.name},执行成功!")
+                
+        logger.warning(f"作业：'{param.name}',执行失败！")

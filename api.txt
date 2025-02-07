@@ -61,3 +61,7 @@ http://192.168.16.100:30104/dehoop-admin/job/logs/work?timestamp=1737991809982&e
 {
     executeId：6f3664f86435437395de702823fbb937
 }
+http://192.168.16.100:30104/dehoop-admin/job/outlinework/work?timestamp=1738300592834 delete
+{
+    "workId": "671856493401735168"
+}
