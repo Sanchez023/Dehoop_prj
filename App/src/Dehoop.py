@@ -1,9 +1,10 @@
 
-from log import logger
+from App.src.log import logger
 import socket
-from Module import LoginModule,PublicConfig,DataDevelopment
-from ParamStruct import ParamDDLWork,ParamDDLContent
-from time import sleep
+from App.src.Module import LoginModule,PublicConfig,DataDevelopment
+from App.src.ParamStruct import ParamOutLineWork,ParamDDLContent,paramFlink,paramDBInfo
+from App.src.Table import DDLStruct,GetColumns
+
 class Root:
     '''网络根信息类\n
     用于维护对应的网络地址信息和端口信息，提供了一个端口测试的方法
@@ -29,7 +30,13 @@ class Root:
         调用socket套接字来实现对端口的访问,返回结果为布尔型。
         ''' 
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        r = s.connect_ex(self.url,self.port)
+        try:
+            
+            r = s.connect_ex((self.ip,self.port))
+            s.close()
+        except:
+            s.close()
+            return False
         if r == 0:
             return True
         else:
@@ -48,6 +55,8 @@ class Dehoop(Root):
         self.c_workspaces = None
         self.c_prjdir =  None
         self.c_nodeMatch = None
+        self.c_dbsType = None
+        self.c_dbids = None
         
         self.running_excuteId = {}
         
@@ -114,7 +123,7 @@ class Dehoop(Root):
             logger.error("查询离线作业失败")
             return None
         
-    def CreateDDLWork(self,projectName:str,param:ParamDDLWork):
+    def CreateDDLWork(self,projectName:str,param:ParamOutLineWork):
         '''创建DDL作业\n
         参数:
         projectName: 项目名称
@@ -164,8 +173,13 @@ class Dehoop(Root):
         else:
             logger.warning(f"删除'{id}'作业失败！")
             
-    
-    def ExuteDDLWork(self,projectName,param:ParamDDLWork):
+    def ExuteDDLWork(self,projectName,param:ParamOutLineWork):
+        '''执行DDL作业\n
+        
+        参数：
+        projectName: 项目名称
+        para:         DDL作业参数
+        '''
         if self.c_prjdir is None:
             logger.warning("未获取到项目目录信息，正在获取项目目录")
             self.QueryOutLineWorks(projectName)
@@ -174,6 +188,52 @@ class Dehoop(Root):
             excuteid = DataDevelopment(self.request_url).ExcuteWork(self.token,projectid,self.tenantid,param)
             if excuteid:
                 self.running_excuteId[excuteid] = ""
-                logger.info(f"作业:{param.name},执行成功!")
+                logger.info(f"作业:{param.id},执行成功!")
+            else:
+                logger.warning(f"作业：'{param.id}',执行失败！")
                 
-        logger.warning(f"作业：'{param.name}',执行失败！")
+    def CreateDDLWorkBatch(self,projectName:str,params:list[ParamOutLineWork],ddls:list[DDLStruct]):
+        for p,d in zip(params,ddls):
+            id = self.CreateDDLWork(projectName,p)
+            script = d.ToScript()
+            if id is not None:
+                try:
+                    p2 = ParamDDLContent(id= id ,workScript=script)
+                    self.UpdateDDLWork(projectName,p2)
+                    self.ExuteDDLWork(projectName,p2)
+                except:
+                    self.DeleteWorkById(projectName,id)
+                    continue
+    
+    def GenerateDDLScript(self,projectName:str,fromdb:str,todb:str,tableName:str)->str:
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        param = paramFlink(fromDbId =  fromdb,toDbId= todb,tableName = tableName)
+        res = DataDevelopment(self.request_url).GenerateDDL(self.token,projectid,self.tenantid,param)
+        return  GetColumns(res)
+ 
+    def GetResourceType(self,projectName):
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        res = PublicConfig(self.request_url).GetResourceType(self.token,projectid,self.tenantid)
+        if res is not None:
+            self.c_dbsType = res
+        else:
+            return None
+        
+    def GetDBResourceId(self,projectName,envid:str,type:str):        
+        if self.c_prjdir is None:
+            logger.warning("未获取到项目目录信息，正在获取项目目录")
+            self.QueryOutLineWorks(projectName)
+        projectid:str = self.projects[projectName][0]
+        param = paramDBInfo(envId = envid,type = type)
+        res = PublicConfig(self.request_url).GetDBResourceId(self.token,projectid,self.tenantid,param)
+        if res is not None:
+            self.c_dbids = res
+        else:
+            return None
+       

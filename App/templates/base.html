@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+    
+</head>
+
+<body>
+    <aside id="sidebar">
+        <button id="toggle-sidebar">Toggle Sidebar</button>
+        <ul id="sidebar-items">
+            {% for item in sidebar_items %}
+            <li><a href="{{ item.url }}" data-target="{{ item.target }}">{{ item.label }}</a></li>
+            {% endfor %}
+        </ul>
+        <div>
+            <div id="new-connect"> New Connect</div>
+        </div> <!-- 新增按钮 -->
+    </aside>
+    <main id="main-content">
+
+        {% block content %}
+        ...
+        {% endblock %}
+    </main>
+    <div id="connect-modal-overlay"></div>
+    <div id="connect-modal">
+        <h2>New Connection</h2>
+        <form id="connect-form">
+            <label for="ip">IP Address:</label>
+            <input type="text" id="ip" name="ip" required><br>
+            <label for="port">Port:</label>
+            <input type="number" id="port" name="port" required><br>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">新增</button>
+        </form>
+    </div>
+</body>
+
+</html>
+<script>
+
+</script>

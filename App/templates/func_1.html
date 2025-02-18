@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title%}
+
+{% endblock %}
+
+{% block content%}
+<div class="nav-userInfo">
+    <div class="nav-userInfo-son" id="token">当前dehoopToken:{{dehoopToken}}</div>
+    <div class="nav-userInfo-son" id="user_id">当前tenantid:{{tenantid}}</div>
+</div>
+<hr>
+<div class="nav-funcs">
+    <!-- <div><a href="#">一键建表</a></div> -->
+    <div><a href="#">EXCEL批量建表</a></div>
+</div>
+<hr>
+<div>
+    <form id="ddlForm">
+        <!-- 温的力量 -->
+        <!-- 项目名称下拉框 -->
+        <label for="projectName">项目名称:</label>
+        <select id="projectName" name="projectName" required>
+            <option value="">请选择项目名称</option>
+        </select>
+
+
+        <!-- 工作流名称下拉框 -->
+        <label for="workflowName">工作流名称:</label>
+        <select id="workflowName" name="workflowName" disabled required>
+            <option value="">请选择工作流名称</option>
+        </select>
+
+        <!-- 第一层文件夹名称下拉框 -->
+        <label for="firstFolderName">文件目录:</label>
+        <select id="firstFolderName" name="firstFolderName" disabled required>
+            <option value="">请选择目录</option>
+        </select>
+
+
+
+        <div style="display:flex; justify-content: space-between; ">
+            <div style="display:flex;width: 600px;">
+                <label for="firstFolderName">来源数据库类型:</label>
+                <select id="firstFolderName" name="firstFolderName" disabled required>
+                    <option value="">请选择数据库类型</option>
+                </select>
+            </div>
+            <div style="display:flex;width: 500px;">
+                <label for="firstFolderName" style="width:fit-content;">数据库名称:</label>
+                <select id="firstFolderName" name="firstFolderName" disabled required>
+                    <option value="">请选择数据库</option>
+                </select>
+            </div>
+
+        </div>
+        <div style="display:flex; justify-content: space-between; ">
+            <div style="display:flex;width: 600px;">
+                <label for="firstFolderName">去向数据库类型:</label>
+                <select id="firstFolderName" name="firstFolderName" disabled required>
+                    <option value="">请选择数据库类型</option>
+                </select>
+            </div>
+            <div style="display:flex;width: 500px;">
+                <label for="firstFolderName" style="width:fit-content;">数据库名称:</label>
+                <select id="firstFolderName" name="firstFolderName" disabled required>
+                    <option value="">请选择数据库</option>
+                </select>
+            </div>
+
+        </div>
+        <input type="file" id="file-uploader">
+
+        <button type="submit" >提交</button>
+</div>
+
+{% endblock %}

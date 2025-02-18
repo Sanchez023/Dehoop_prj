@@ -23,13 +23,14 @@ class BaseStruct:
         return json.dumps(self.__dict__)
 
 
-class ParamDDLWork(BaseStruct):
+class ParamOutLineWork(BaseStruct):
     """DDL工作参数结构体\n
     该类用于定义DDL工作的参数结构体\n
 
     参数:
         parentId:   父作业ID
         name:       作业名称
+        type:       作业类型
         flowId:     流程ID
         director:   负责人
         descr:      描述
@@ -76,8 +77,35 @@ class ParamDDLContent(BaseStruct):
             "AS",
         ]
         self.id = kwargs.get("id")
+        self.workId = kwargs.get("workId",self.id)
         self.executeId = kwargs.get("executeId",uuid4().hex)
         self.workScript = kwargs.get("workScript")
         self.keywords = kwargs.get("keyWords", default_keywords)
         self.remain = kwargs.get("remain", False)
         self.script = self.workScript
+
+
+class paramFlink(BaseStruct):
+    '''
+    {
+    "fromDbId": "643763299611049984",
+    "toDbId": "643766294172139520",
+    "schema": null,
+    "tableName": "GCMAXDEALERCODE"
+}'''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.fromDbId = kwargs.get("fromDbId")
+        self.toDbId = kwargs.get("toDbId", False)
+        self.tableName = kwargs.get("tableName", False)
+        self.schema = None   
+
+
+class paramDBInfo(BaseStruct):
+       def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.envId = kwargs.get("envId")
+        self.type = kwargs.get("type", False)
+    

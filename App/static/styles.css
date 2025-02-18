@@ -1,0 +1,132 @@
+html,
+body {
+  display: flex;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#sidebar {
+  width: 200px;
+  height: 100%;
+  background-color: #333;
+  color: white;
+  transition: width 0.3s;
+}
+
+#sidebar.collapsed {
+  width: 50px;
+}
+
+#sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#sidebar ul li {
+  padding: 10px;
+}
+
+#sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+#main-content {
+
+  flex-grow: 1;
+  padding: 20px;
+}
+
+#toggle-sidebar {
+  width: 100%;
+  padding: 10px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+/* 添加一些简单的样式 */
+#connect-modal {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 1000;
+}
+#connect-modal-overlay {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+/* 表单样式 */
+form {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+input, select {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+button {
+    padding: 0.75rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* 只读文本框样式 */
+input[readonly] {
+    background-color: #f4f4f9;
+    border: 1px solid #ccc;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/* 禁用下拉框样式 */
+select:disabled {
+    background-color: #f4f4f9;
+    border: 1px solid #ccc;
+    color: #555;
+    cursor: not-allowed;
+}
