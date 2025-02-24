@@ -184,7 +184,7 @@ class PublicConfig(BaseModule):
         try:
             project_list = json.loads(result.text)["table"]
             for i in project_list:
-                logger.debug(
+                logger.info(
                     f"项目名称:{i['projectName']},项目ID:{i['projectId']},环境ID:{i['envId']}"
                 )
                 dict_prj[i["projectName"]] = (i["projectId"], i["envId"])
@@ -281,7 +281,11 @@ class PublicConfig(BaseModule):
 
     def GetDBResourceId(self,token:str,projectid:str,tenantid:str,param:paramDBInfo)->dict:
         timestamp = int(time.time())
-        url = f"{self.base_url}/dehoop-admin/pro/env/queryDataSource?timestamp={timestamp}"
+       
+        if bool(param.isInnerType):
+            url = f"{self.base_url}/dehoop-admin/pro/env/queryInnerDataSource?timestamp={timestamp}"
+        else:
+            url = f"{self.base_url}/dehoop-admin/pro/env/queryDataSource?timestamp={timestamp}"
         self.url = url
         self.request_type = "POST"
         logger.debug(self.url)
@@ -642,4 +646,3 @@ class DataDevelopment(BaseModule):
             logger.error(f"执行建表语句请求失败,错误信息:{e}")
             return None   
         
-      

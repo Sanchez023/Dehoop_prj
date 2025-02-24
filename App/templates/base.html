@@ -1,51 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Website{% endblock %}</title>
+    <title>{% block title %}首页{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
-    
 </head>
 
 <body>
-    <aside id="sidebar">
-        <button id="toggle-sidebar">Toggle Sidebar</button>
-        <ul id="sidebar-items">
-            {% for item in sidebar_items %}
-            <li><a href="{{ item.url }}" data-target="{{ item.target }}">{{ item.label }}</a></li>
-            {% endfor %}
-        </ul>
+    <header>
+        <h1>中台工具</h1>
+        
         <div>
-            <div id="new-connect"> New Connect</div>
-        </div> <!-- 新增按钮 -->
-    </aside>
-    <main id="main-content">
+            <div>连接信息</div>
+            {% if false %}
+            <div><a href="">取消连接</a></div>
+            <div>
+                <div>token:{{ token }}</div>
+                <div>tenantid:{{ tenantid }}</div>
+            </div>
+            {% else %}
+            <div><a href="">建立连接</a></div>
+            {% endif %}
+            
+         
+        </div>
+   
+    </header>
 
-        {% block content %}
-        ...
-        {% endblock %}
+    <main>
+        {% if isinner %}
+            <section>
+                <nav>
+                    <ul>
+                        <li><a href="/outLineWork">批量创建离线作业</a></li>
+                    </ul>
+                </nav>
+            </section>
+        {% else %}
+            {% block content %}{% endblock %}
+        {% endif %}
+        
+   
+
     </main>
-    <div id="connect-modal-overlay"></div>
-    <div id="connect-modal">
-        <h2>New Connection</h2>
-        <form id="connect-form">
-            <label for="ip">IP Address:</label>
-            <input type="text" id="ip" name="ip" required><br>
-            <label for="port">Port:</label>
-            <input type="number" id="port" name="port" required><br>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br>
-            <button type="submit">新增</button>
-        </form>
-    </div>
+
+    <footer>
+
+    </footer>
+
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 
 </html>
-<script>
-
-</script>

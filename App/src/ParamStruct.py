@@ -108,4 +108,4 @@ class paramDBInfo(BaseStruct):
         
         self.envId = kwargs.get("envId")
         self.type = kwargs.get("type", False)
-    
+        self.isInnerType = kwargs.get("isInnerType",False)

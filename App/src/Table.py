@@ -51,6 +51,7 @@ def replaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
         
     with open(path,"r",encoding="utf-8") as f:
         s = f.read()     
+
         s = s.replace("{{TABLENAME}}",tableName)
         s = s.replace("{{COLUMNS_SCRIPTS}}",columns_script)
         s = s.replace("{{COMMENT}}",comment)
@@ -61,8 +62,16 @@ def replaceKeyWords_spark(tableName:str):
     with open(path,"r",encoding="utf-8") as f:
         s = f.read()     
         s = s.replace("{{TABLENAME}}",tableName)
-
     return s 
+def replaceKeyWords_sparkv2(tableName:str,partition:str,joins:str):
+    path = "./App/src/DDL/sparkSql_model.sql"
+    with open(path,"r",encoding="utf-8") as f:
+        s = f.read()     
+        s = s.replace("{{TABLENAME}}",tableName)
+        s = s.replace("{{PRATITION}}",partition)
+        s = s.replace("{{LINKCOLUMNS}}",joins)
+        
+    return s
 
 def GetColumns(sql_script:str):
     import re
@@ -79,11 +88,4 @@ def GetColumns(sql_script:str):
 
 
 if __name__ == '__main__':
-    # c1 = Column(0,"ID","INT","the primary key",isNull = False)
-    # c2 = Column(1,"data","varchar(255)","",isNull = False)
-    
-    # ddl = DDLStruct("mainTable","主表",[c1,c2])
-    # replaceKeyWords(ddl.tableName,str(ddl),ddl.tableComment)
-    print(replaceKeyWords_spark("gupolicymain"))
-    
-    
+    pass

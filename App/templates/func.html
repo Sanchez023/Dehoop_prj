@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}批量建表{% endblock %}
+
+{% block content %}
+<h2>批量建表</h2>
+<div><a href="/back">退回</a></div>
+<div>
+    <form action="/Datadevlopment/Outlinework/createOutLineWorkInBatch" method="post" enctype="multipart/form-data">
+        <!-- 项目名称（假设有几个预设的项目名称） -->
+        <label for="projectName">项目名称:</label>
+        <select id="projectName" name="projectName" required>
+            <option value="项目A">项目A</option>
+            <option value="项目B">项目B</option>
+            <option value="项目C">项目C</option>
+        </select><br><br>
+
+        <!-- 父级ID（这里只是示例，通常需要根据实际数据动态生成） -->
+        <label for="parentId">父级ID:</label>
+        <select id="parentId" name="parentId" required>
+            <option value="1">父级1</option>
+            <option value="2">父级2</option>
+            <option value="3">父级3</option>
+        </select><br><br>
+
+        <!-- 工作区ID（同样需要根据实际数据动态生成） -->
+        <label for="workspaceId">工作区ID:</label>
+        <select id="workspaceId" name="workspaceId" required>
+            <option value="workspace1">工作区1</option>
+            <option value="workspace2">工作区2</option>
+        </select><br><br>
+
+
+        <!-- 类型（假设有几种预设的类型） -->
+        <label for="type">类型:</label>
+        <select id="type" name="type" required>
+            <option value="类型1">类型1</option>
+            <option value="类型2">类型2</option>
+        </select><br><br>
+
+        <!-- 来源数据库（这里只是示例） -->
+        <label for="fromdb">来源数据库:</label>
+        <select id="fromdb" name="fromdb" required>
+            <option value="db1">数据库1</option>
+            <option value="db2">数据库2</option>
+        </select><br><br>
+
+        <!-- 目标数据库（同样只是示例） -->
+        <label for="todb">目标数据库:</label>
+        <select id="todb" name="todb" required>
+            <option value="target_db1">目标数据库1</option>
+            <option value="target_db2">目标数据库2</option>
+        </select><br><br>
+        <!-- 文件上传（这个保持为input type="file"，因为下拉框无法用于文件选择） -->
+        <label for="file">上传Excel文件:</label>
+        <input type="file" id="file" name="file" accept=".xlsx,.xls" required><br><br>
+
+        <button type="submit">提交</button>
+    </form>
+</div>
+{% endblock %}

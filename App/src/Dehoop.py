@@ -3,7 +3,8 @@ from App.src.log import logger
 import socket
 from App.src.Module import LoginModule,PublicConfig,DataDevelopment
 from App.src.ParamStruct import ParamOutLineWork,ParamDDLContent,paramFlink,paramDBInfo
-from App.src.Table import DDLStruct,GetColumns
+from App.src.Table import DDLStruct,GetColumns,replaceKeyWords_spark,replaceKeyWords
+from typing import Literal 
 
 class Root:
     '''网络根信息类\n
@@ -46,7 +47,7 @@ class Dehoop(Root):
     '''得帆平台对象类\n
     在该类下以接口的方式实现了对得帆部分模块的基础操作
     '''
-    def __init__(self, ip, port):
+    def __init__(self, ip, port)->bool:
         super().__init__(ip, port)
         self.token = None
         self.tenantid = None
@@ -69,17 +70,22 @@ class Dehoop(Root):
                 logger.info("登入成功")
                 logger.info(f'token:{self.token}')
                 logger.info(f'tenantid:{self.tenantid}')
+            return True 
         else:
             logger.error("登入失败")
-            return None
+            return False
     
     def QueryProject(self):
-        '''查询项目'''
+        '''查询项目\n
+        返回参数：
+        项目ID和环境ID的字典'''
+
        
         if self.token is not None:
             self.projects =  PublicConfig(self.request_url).QueryProject(self.token,self.tenantid)
             if self.projects is not None:
                 logger.info("查询项目成功")
+                return self.projects
                 
         else:
             logger.error("未获取到token,请先登入")
@@ -96,9 +102,9 @@ class Dehoop(Root):
             result =  PublicConfig(self.request_url).QueryWorkspace(self.token,envid)
             if result is not None:
                 self.c_workspaces = result
-            if self.c_workspaces is not None:
                 logger.info("查询工作空间成功")
                 logger.info(f"工作空间信息：{self.c_workspaces}")
+                return result
         else:
             logger.error("查询工作空间失败")
             return None
@@ -205,6 +211,53 @@ class Dehoop(Root):
                     self.DeleteWorkById(projectName,id)
                     continue
     
+    def CreateOutlineWorkBatch(self,projectName:str,parentid:str,workspaceId,df:list,type:Literal['ODS','STG','SPARK','DDL'],fromdb:str,todb:str=None):
+        "批量创建作业"
+        
+        for i in range(len(df)):
+            name = df.iloc[i, 0]
+            descr = df.iloc[i, 1]
+
+            TABLENAME = name
+            DESCR = descr
+            script = self.GenerateDDLScript(projectName,fromdb,todb,"HBCORE."+TABLENAME)
+            if script is None:
+                continue
+        
+            
+            match type:
+                case 'SPARK':
+                    INPARAM = TABLENAME
+                    p = ParamOutLineWork(parentId=parentid,name="ODS_HBCORE_"+INPARAM+"_ONYARN",descr=DESCR,workspaceId=workspaceId,type="SparkSQL",director = d.tenantid)
+                case 'ODS':
+                    INPARAM = 'ODS_HBCORE_' + TABLENAME
+                    p = ParamOutLineWork(parentId=parentid,name = INPARAM,descr=DESCR,workspaceId=workspaceId,director = self.tenantid)
+                case 'STG':
+                    INPARAM = 'STG_HBCORE_' + TABLENAME
+                    p = ParamOutLineWork(parentId=parentid,name = INPARAM,descr=DESCR,workspaceId=workspaceId,director = self.tenantid)
+            
+            id = self.CreateDDLWork(projectName,p)
+    
+            if type == 'spark':
+                script = replaceKeyWords_spark(INPARAM)
+            elif type == 'STG':
+                script = replaceKeyWords(INPARAM,script,DESCR,False)
+            else:
+                script = replaceKeyWords(INPARAM,script,DESCR,True)
+            
+            if id is not None:
+                
+                with open("./log_id.txt","a",encoding="utf-8") as f:
+                    f.write(id+"\n")
+                    
+                try:
+                    p2 = ParamDDLContent(id= id ,workScript=script)
+                    self.UpdateDDLWork(projectName,p2)
+                    if type != 'spark':
+                        self.ExuteDDLWork(projectName,p2)
+                except:
+                    self.DeleteWorkById(projectName,id)
+                    
     def GenerateDDLScript(self,projectName:str,fromdb:str,todb:str,tableName:str)->str:
         if self.c_prjdir is None:
             logger.warning("未获取到项目目录信息，正在获取项目目录")
@@ -212,9 +265,12 @@ class Dehoop(Root):
         projectid:str = self.projects[projectName][0]
         param = paramFlink(fromDbId =  fromdb,toDbId= todb,tableName = tableName)
         res = DataDevelopment(self.request_url).GenerateDDL(self.token,projectid,self.tenantid,param)
+        if res is None:
+            return None
         return  GetColumns(res)
  
     def GetResourceType(self,projectName):
+        '''获取数据库类型'''
         if self.c_prjdir is None:
             logger.warning("未获取到项目目录信息，正在获取项目目录")
             self.QueryOutLineWorks(projectName)
@@ -222,18 +278,22 @@ class Dehoop(Root):
         res = PublicConfig(self.request_url).GetResourceType(self.token,projectid,self.tenantid)
         if res is not None:
             self.c_dbsType = res
+            return res
         else:
             return None
         
-    def GetDBResourceId(self,projectName,envid:str,type:str):        
+    def GetDBResourceId(self,projectName,type:str,isInnertype:bool=False):        
         if self.c_prjdir is None:
             logger.warning("未获取到项目目录信息，正在获取项目目录")
             self.QueryOutLineWorks(projectName)
         projectid:str = self.projects[projectName][0]
-        param = paramDBInfo(envId = envid,type = type)
+        envId = self.projects[projectName][1]
+       
+        param = paramDBInfo(envId = envId,type = type,isInnerType = isInnertype)
         res = PublicConfig(self.request_url).GetDBResourceId(self.token,projectid,self.tenantid,param)
         if res is not None:
             self.c_dbids = res
+            return res
         else:
             return None
        

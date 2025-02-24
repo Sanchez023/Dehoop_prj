@@ -1,0 +1,15 @@
+2025-02-21 14:55:39,170 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-21 14:55:39,170 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-02-21 14:55:39,171 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 14:56:26,100 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 14:57:29,172 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 15:38:44,115 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 15:57:32,778 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 15:58:24,839 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 15:58:40,619 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 16:00:16,922 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 16:02:50,632 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 16:02:54,302 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 16:02:58,973 - werkzeug - INFO -  * Restarting with stat
+2025-02-21 16:09:13,167 - werkzeug - INFO -  * Restarting with stat
