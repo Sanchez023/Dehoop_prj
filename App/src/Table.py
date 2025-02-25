@@ -38,7 +38,7 @@ class DDLStruct:
     def ToScript(self):
         return replaceKeyWords(self.tableName,self.__str__(),self.tableComment)
  
-def replaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
+def ReplaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
     if ds:
         path = "./App/src/DDL/modelSql_ds.sql"
     else:
@@ -52,13 +52,13 @@ def replaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
         s = s.replace("{{COMMENT}}",comment)
     return s 
 
-def replaceKeyWords_spark(tableName:str):
+def ReplaceKeyWords_spark(tableName:str):
     path = "./App/src/DDL/sparkSql.sql"
     with open(path,"r",encoding="utf-8") as f:
         s = f.read()     
         s = s.replace("{{TABLENAME}}",tableName)
     return s 
-def replaceKeyWords_sparkv2(tableName:str,partition:str,joins:str):
+def ReplaceKeyWords_sparkv2(tableName:str,partition:str,joins:str):
     path = "./App/src/DDL/sparkSql_model.sql"
     with open(path,"r",encoding="utf-8") as f:
         s = f.read()     

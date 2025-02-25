@@ -1,13 +1,13 @@
 from App.src.Dehoop import Dehoop
 from App.src.ParamStruct import ParamOutLineWork,ParamDDLContent
-from App.src.Table import replaceKeyWords,replaceKeyWords_spark
+from App.src.Table import ReplaceKeyWords,ReplaceKeyWords_spark
 from App.src.TransFormer import Transerfrom_addColumn,Transerfrom_mappingList,ExtraColumn,ReMappingList
 
 import tqdm 
 if __name__ == '__main__':
     
-    u = 'liub'
-    passwd = 'hbbx@2024SxdC'
+    u = ''
+    passwd = ''
 
     d = Dehoop("10.1.8.17",30104)
     # d.Login(u,passwd)
@@ -54,11 +54,11 @@ if __name__ == '__main__':
         id = d.CreateDDLWork(projectName,p)
   
         if type == 'spark':
-            script = replaceKeyWords_spark(INPARAM)
+            script = ReplaceKeyWords_spark(INPARAM)
         elif type == 'STG':
-            script = replaceKeyWords(INPARAM,script,DESCR,False)
+            script = ReplaceKeyWords(INPARAM,script,DESCR,False)
         elif type == "ODS":
-            script = replaceKeyWords(INPARAM,script,DESCR,True)
+            script = ReplaceKeyWords(INPARAM,script,DESCR,True)
         # elif type == "SYNC":
             
         
