@@ -273,7 +273,7 @@ class Dehoop(Root):
                         descr=DESCR,
                         workspaceId=workspaceId,
                         type="SparkSQL",
-                        director=d.tenantid,
+                        director=self.tenantid,
                     )
                 case "ODS":
                     INPARAM = "ODS_HBCORE_" + TABLENAME

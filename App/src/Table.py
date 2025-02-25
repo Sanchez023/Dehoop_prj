@@ -36,7 +36,7 @@ class DDLStruct:
     
     
     def ToScript(self):
-        return replaceKeyWords(self.tableName,self.__str__(),self.tableComment)
+        return ReplaceKeyWords(self.tableName,self.__str__(),self.tableComment)
  
 def ReplaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
     if ds:
