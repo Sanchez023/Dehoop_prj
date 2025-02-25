@@ -1,0 +1,19 @@
+2025-02-24 16:37:47,988 - App.src.log - INFO - 发送登入请求中...
+2025-02-24 16:37:48,059 - App.src.log - INFO - 返回状态码:  200
+2025-02-24 16:37:48,059 - App.src.log - INFO - 登入成功
+2025-02-24 16:37:48,059 - App.src.log - INFO - token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJkZWhvb3B1c2VyaWQiOiI2NDM3NDExNDYwNDgxMDI0MDAiLCJ0ZW5hbnRpZCI6IjY0MjQxNzI4MzAxMTk2OTAyNCIsImV4cCI6MTc0MDY0NTMxMywiaWF0IjoxNzQwMzg2MTEzfQ.DE6qi1ecXGfG6BZx5bN2YZeOqlmCGuTgRCudMjxeTSxVJEMBjyE7GvROGQYbFr-5DbHzPyyJytW8oV6oIXt57w
+2025-02-24 16:37:48,059 - App.src.log - INFO - tenantid:642417283011969024
+2025-02-24 16:37:48,064 - App.src.log - WARNING - 未获取到项目目录信息，正在获取项目目录
+2025-02-24 16:37:48,064 - App.src.log - WARNING - 未获取到项目信息，正在获取项目
+2025-02-24 16:37:48,064 - App.src.log - INFO - 发送查询项目请求中...
+2025-02-24 16:37:48,129 - App.src.log - INFO - 返回状态码:  200
+2025-02-24 16:37:48,129 - App.src.log - INFO - 项目名称:恒邦POT,项目ID:643765953825341440,环境ID:643766293589131264
+2025-02-24 16:37:48,129 - App.src.log - INFO - 项目名称:API项目,项目ID:649935401082945536,环境ID:649936207970566144
+2025-02-24 16:37:48,130 - App.src.log - INFO - 查询项目成功
+2025-02-24 16:37:48,130 - App.src.log - INFO - 发送查询数据开发作业请求中...
+2025-02-24 16:37:48,222 - App.src.log - INFO - 返回状态码:  200
+2025-02-24 16:37:48,222 - App.src.log - INFO - 查询离线作业成功
+2025-02-24 16:37:48,222 - App.src.log - INFO - 请求发送中...
+2025-02-24 16:37:48,373 - App.src.log - INFO - 返回状态码:  200
+2025-02-24 16:37:48,374 - App.src.log - INFO - 建表语句请求发送中...
+2025-02-24 16:37:48,683 - App.src.log - INFO - 返回状态码:  200

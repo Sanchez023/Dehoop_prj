@@ -37,12 +37,7 @@ class DDLStruct:
     
     def ToScript(self):
         return replaceKeyWords(self.tableName,self.__str__(),self.tableComment)
-
-            
-            
-        
-    
-
+ 
 def replaceKeyWords(tableName:str,columns_script:str,comment:str,ds:bool=False):
     if ds:
         path = "./App/src/DDL/modelSql_ds.sql"
@@ -85,7 +80,6 @@ def GetColumns(sql_script:str):
         str_sql = sql_script[start_index+1:end_index].strip()
   
     return re.sub(r"VARCHAR\(.*\)",'STRING',str_sql)
-
 
 if __name__ == '__main__':
     pass

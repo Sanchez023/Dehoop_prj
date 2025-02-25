@@ -1,4 +1,4 @@
-from App.src.ParamStruct import ParamOutLineWork, ParamDDLContent,paramFlink,paramDBInfo
+from App.src.ParamStruct import ParamOutLineWork, ParamDDLContent,ParamFlink,ParamDBInfo,ParamColumnGet,ParamSyncJob
 
 from hashlib import md5
 from App.src.log import logger
@@ -85,7 +85,7 @@ class LoginModule(BaseModule):
         url = f"{base_url}/dehoop-admin/fnd/user/login?"
         super().__init__(url, self.request_type)
 
-    def login(self, username, passwd) -> tuple[str, str]:
+    def login(self, username, passwd) -> tuple[str, str,str]:
         """登入方法\n
         参数：
         username(str):  登入账号
@@ -125,7 +125,8 @@ class LoginModule(BaseModule):
             try:
                 token = dict_res["data"]["token"]
                 tenantid = dict_res["data"]["tenantid"]
-                return token, tenantid
+                userId = dict_res["data"]["userinfo"]["id"]
+                return token, tenantid, userId
             except KeyError:
                 logger.error("未找到token或tenantid!!!")
                 return None
@@ -279,7 +280,7 @@ class PublicConfig(BaseModule):
             logger.error(f"请求失败,错误信息:{e}")
             return None   
 
-    def GetDBResourceId(self,token:str,projectid:str,tenantid:str,param:paramDBInfo)->dict:
+    def GetDBResourceId(self,token:str,projectid:str,tenantid:str,param:ParamDBInfo)->dict:
         timestamp = int(time.time())
        
         if bool(param.isInnerType):
@@ -325,7 +326,7 @@ class PublicConfig(BaseModule):
 SAVE_SUCCESS = "保存成功"
 DELETE_SUCCESS = "删除成功"
 OPERATION_SUCCESS = "操作成功"
-EXCUTE_SUCCESS = "执行成功"
+EXECUTE_SUCCESS = "执行成功"
 
 class DataDevelopment(BaseModule):
     """数据开发类\n
@@ -417,9 +418,6 @@ class DataDevelopment(BaseModule):
         except Exception as e:
             logger.error(f"查询数据开发作业失败,错误信息:{e}")
             return None
-
-    def CreateOutLineWork():
-        pass
 
     def CreateDDLWork(
         self, token: str, projectid: str, tenantid: str, params: ParamOutLineWork
@@ -541,7 +539,7 @@ class DataDevelopment(BaseModule):
             logger.error(f"删除DDL作业失败,错误信息:{e}")
             return None   
         
-    def ExcuteTestParams(self,token:str,projectid:str,tenantid:str,param):
+    def ExecuteTestParams(self,token:str,projectid:str,tenantid:str,param):
         """执行参数测试作业"""
         timestamp = int(time.time())
         url = f"{self.base_url}/dehoop-admin/job/outlinework/get/executionTestParams?timestamp={timestamp}"
@@ -576,7 +574,7 @@ class DataDevelopment(BaseModule):
             logger.error(f"运行测试参数作业失败,错误信息:{e}")
             return None   
     
-    def ExcuteWork(self,token:str,projectid:str,tenantid:str,param:ParamOutLineWork)->str:
+    def ExecuteWork(self,token:str,projectid:str,tenantid:str,param:ParamOutLineWork)->str:
         """执行DDL作业"""
         timestamp = int(time.time())
         url = f"{self.base_url}/dehoop-admin/job/outlinework/execute?timestamp={timestamp}"
@@ -604,7 +602,7 @@ class DataDevelopment(BaseModule):
         try:
             logger.info(f"返回状态码:  {result.status_code}")
             logger.debug(f"返回结果: \n {result.text}")
-            if (EXCUTE_SUCCESS == str(json.loads(result.text)["message"])):
+            if (EXECUTE_SUCCESS == str(json.loads(result.text)["message"])):
                 excuteId = str(json.loads(result.text)["data"]["queryExecuteId"])
                 return excuteId
             return None
@@ -612,7 +610,7 @@ class DataDevelopment(BaseModule):
             logger.error(f"执行作业失败,错误信息:{e}")
             return None   
         
-    def GenerateDDL(self,token:str,projectid:str,tenantid:str,param:paramFlink)->str:
+    def GenerateDDL(self,token:str,projectid:str,tenantid:str,param:ParamFlink)->str:
         """生产DDL"""
         timestamp = int(time.time())
         url = f"{self.base_url}/dehoop-admin/job/sync/create/tableSql?timestamp={timestamp}"
@@ -646,3 +644,71 @@ class DataDevelopment(BaseModule):
             logger.error(f"执行建表语句请求失败,错误信息:{e}")
             return None   
         
+    def SaveOrUpdateSyncWork(self,token:str,projectid:str,tenantid:str,param:ParamSyncJob)->bool:
+        """获取字段"""
+        timestamp = int(time.time())
+        url = f"{self.base_url}/dehoop-admin/job/sync/save/syncWorkConfig?timestamp={timestamp}"
+        self.url = url
+        self.request_type = "POST"
+        logger.debug(self.url)
+    
+        json_p = param.dicts
+        
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
+        
+        
+        logger.info("保存语句请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
+        
+        result = self.send(headers,json_p = json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            return True
+        except Exception as e:
+            logger.error(f"保存语句请求失败,错误信息:{e}")
+            return None
+        
+    def GetColumnInfo(self,token:str,projectid:str,tenantid:str,param:ParamColumnGet)->list:
+        """获取字段"""
+        timestamp = int(time.time())
+        url = f"{self.base_url}/dehoop-admin/job/sync/tableColumnInfo?timestamp={timestamp}"
+        self.url = url
+        self.request_type = "POST"
+        logger.debug(self.url)
+     
+        json_p = param.to_dict()
+        
+        headers = {
+            "dehooptoken": token,
+            "tenantid": tenantid,
+            "projectid": projectid,
+            "connection": "keep-alive",
+            "content-type": "application/json",
+        }
+        
+        
+        logger.info("保存语句请求发送中...")
+        logger.debug(f"头请求内容：\n {headers}")
+        logger.debug(f"请求体内容：\n {json_p}")
+        
+        result = self.send(headers,json_p = json_p)
+        if result is None:
+            return None
+        try:
+            logger.info(f"返回状态码:  {result.status_code}")
+            logger.debug(f"返回结果: \n {result.text}")
+            return json.loads(result.text)["data"]["tableColumnInfos"]
+        except Exception as e:
+            logger.error(f"保存建表语句请求失败,错误信息:{e}")
+            return None
+            

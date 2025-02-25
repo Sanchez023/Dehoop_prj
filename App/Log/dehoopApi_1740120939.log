@@ -1,8 +1,0 @@
-2025-02-21 14:55:39,737 - werkzeug - WARNING -  * Debugger is active!
-2025-02-21 14:55:39,739 - werkzeug - INFO -  * Debugger PIN: 652-551-645
-2025-02-21 14:55:52,116 - werkzeug - INFO - 127.0.0.1 - - [21/Feb/2025 14:55:52] "[35m[1mGET / HTTP/1.1[0m" 500 -
-2025-02-21 14:55:52,198 - werkzeug - INFO - 127.0.0.1 - - [21/Feb/2025 14:55:52] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
-2025-02-21 14:55:52,219 - werkzeug - INFO - 127.0.0.1 - - [21/Feb/2025 14:55:52] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
-2025-02-21 14:55:52,271 - werkzeug - INFO - 127.0.0.1 - - [21/Feb/2025 14:55:52] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=MoQuaxkMk1TWexsgv7qa HTTP/1.1" 200 -
-2025-02-21 14:55:52,413 - werkzeug - INFO - 127.0.0.1 - - [21/Feb/2025 14:55:52] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
-2025-02-21 14:56:26,060 - werkzeug - INFO -  * Detected change in 'C:\\Users\\liubi\\Documents\\恒邦保险\\代码文件\\dehoop_prj\\app.py', reloading
